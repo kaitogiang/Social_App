@@ -22,8 +22,6 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
   Future<void> _onCommentFetched(
       CommentFetched event, Emitter<CommentState> emit) async {
     try {
-      final cachedCommentSize = (state as CommentFetch).comments.length;
-      log('Previous Size comments: $cachedCommentSize');
       // final cachedComments = (state as CommentFetch).comments;
       final comments = await _fetchComments(postId: event.postId);
       // final newComments = (state as CommentFetch)

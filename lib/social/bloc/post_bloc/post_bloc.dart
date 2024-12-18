@@ -45,7 +45,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   Future<List<Post>> _fetchPosts({required int startIndex}) async {
     final response = await httpClient.get(Uri.http(
       'jsonplaceholder.typicode.com',
-      '/posooopooits',
+      '/posts',
       <String, String>{'_start': '$startIndex', '_limit': '$_postLimit'},
     ));
 
