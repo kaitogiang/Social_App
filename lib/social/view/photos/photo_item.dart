@@ -22,6 +22,7 @@ class PhotoItem extends StatelessWidget {
     // final thumbnailUrl = 'https://via.placeholder.com/150/92c952';
     // final title = 'accusamus beatae ad facilis cum similique qui sunt';
     return Container(
+      padding: const EdgeInsets.only(bottom: 70),
       decoration: BoxDecoration(
         image: DecorationImage(
           image: NetworkImage(photo.url),

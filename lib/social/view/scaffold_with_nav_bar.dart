@@ -12,21 +12,44 @@ class ScaffoldWithNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: navigationShell,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: navigationShell.currentIndex,
-        onTap: (index) => _onTap(context, index),
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.photo),
-            label: 'Photos',
+      body: Stack(
+        children: [
+          navigationShell,
+          Container(
+            alignment: Alignment.bottomCenter,
+            padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
+            child: BottomNavigationBar(
+              currentIndex: navigationShell.currentIndex,
+              onTap: (index) => _onTap(context, index),
+              items: [
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.photo),
+                  label: 'Photos',
+                ),
+                BottomNavigationBarItem(
+                  icon: Icon(Icons.comment),
+                  label: 'Posts',
+                )
+              ],
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.comment),
-            label: 'Posts',
-          )
         ],
       ),
+
+      // bottomNavigationBar: BottomNavigationBar(
+      //   currentIndex: navigationShell.currentIndex,
+      //   onTap: (index) => _onTap(context, index),
+      //   items: [
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.photo),
+      //       label: 'Photos',
+      //     ),
+      //     BottomNavigationBarItem(
+      //       icon: Icon(Icons.comment),
+      //       label: 'Posts',
+      //     )
+      //   ],
+      // ),
     );
   }
 
