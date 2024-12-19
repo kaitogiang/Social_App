@@ -5,12 +5,14 @@ class Post extends Equatable {
   int id;
   String title;
   String body;
+  int commentsCount;
 
   Post({
     required this.userId,
     required this.id,
     required this.title,
     required this.body,
+    this.commentsCount = 0,
   });
 
   factory Post.fromJson(Map<String, dynamic> json) {
@@ -19,6 +21,22 @@ class Post extends Equatable {
       id: json['id'],
       title: json['title'],
       body: json['body'],
+    );
+  }
+
+  Post copyWith({
+    int? userId,
+    int? id,
+    String? title,
+    String? body,
+    int? commentsCount,
+  }) {
+    return Post(
+      userId: userId ?? this.userId,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      body: body ?? this.body,
+      commentsCount: commentsCount ?? this.commentsCount,
     );
   }
 

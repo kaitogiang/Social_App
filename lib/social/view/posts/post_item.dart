@@ -94,9 +94,9 @@ class PostItem extends StatelessWidget {
               const SizedBox(
                 width: 5,
               ),
-              const Text(
-                'Comment',
-                style: TextStyle(
+              Text(
+                'Comment (${post.commentsCount})',
+                style: const TextStyle(
                   color: Colors.grey,
                   fontWeight: FontWeight.bold,
                 ),

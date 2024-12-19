@@ -26,6 +26,11 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     if (state.hasReachedMax) return;
     try {
       final posts = await _fetchPosts(startIndex: state.posts.length);
+      final newPosts = await Future.wait(posts.map((post) async {
+        int commentsCount = await _getTheNumberOfComments(postId: post.id);
+        return post.copyWith(commentsCount: commentsCount);
+      }).toList());
+
       log('Posts length is ${posts.length}');
       if (posts.isEmpty) {
         return emit(state.copyWith(hasReachedMax: true));
@@ -33,7 +38,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
       emit(state.copyWith(
         status: PostStatus.success,
-        posts: [...state.posts, ...posts],
+        posts: [...state.posts, ...newPosts],
       ));
     } catch (error) {
       log('Exception: $error');
@@ -60,5 +65,16 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     log('failed to fetch data');
 
     throw Exception('Error fetching posts');
+  }
+
+  Future<int> _getTheNumberOfComments({required int postId}) async {
+    final response = await httpClient.get(
+        Uri.http('jsonplaceholder.typicode.com', 'posts/$postId/comments'));
+
+    if (response.statusCode == 200) {
+      final body = json.decode(response.body) as List<dynamic>;
+      return body.length;
+    }
+    return 0;
   }
 }
