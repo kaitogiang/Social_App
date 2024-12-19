@@ -17,6 +17,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     //Register event
     //Event for handling gettting posts data
     on<PostFetched>(_onPostFetched);
+    on<PostCommentCountUpdated>(_onPostCommentCountUpdated);
   }
 
   final http.Client httpClient;
@@ -43,6 +44,28 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     } catch (error) {
       log('Exception: $error');
       emit(state.copyWith(status: PostStatus.failure));
+    }
+  }
+
+  Future<void> _onPostCommentCountUpdated(
+      PostCommentCountUpdated event, Emitter<PostState> emit) async {
+    try {
+      log("Calling onPostCommnetCountUpdated");
+      //Getting the current post list
+      final posts = state.posts;
+      //Finding the specific post and update its comment count
+      final updatedPosts = posts.map((currentPost) {
+        //Update the commentCount for a specific post
+        if (currentPost.id == event.postId) {
+          log("Change commentCount post ${event.postId} to ${event.commentCount}");
+          return currentPost.copyWith(commentsCount: event.commentCount);
+        }
+        return currentPost;
+      }).toList();
+      emit(state.copyWith(posts: updatedPosts));
+      log('Emit update comment count: ${updatedPosts[0]}');
+    } catch (error) {
+      log('Exception in _onPostCommentCountUpdated: $error');
     }
   }
 

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_social/social/bloc/comment_bloc/comment_bloc.dart';
+import 'package:image_social/social/bloc/post_bloc/post_bloc.dart';
 import 'package:image_social/social/models/comment.dart';
 import 'package:image_social/social/widgets/comment_item.dart';
 
@@ -35,7 +36,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
   }
 
   //Add new comment to the post, when the user click send, it will scroll to the bottom view
-  void _addCommnent() {
+  void _addCommnent(int currentSize) {
     //Get the max scroll on the screen
     final maxScroll = _scrollController.position.maxScrollExtent;
     //Scroll down to the end
@@ -54,6 +55,9 @@ class _CommentsScreenState extends State<CommentsScreen> {
         email: 'raide',
         body: _commentController.text);
     context.read<CommentBloc>().add(CommentAddPressed(comment));
+    context
+        .read<PostBloc>()
+        .add(PostCommentCountUpdated(currentSize + 1, widget.postId));
     //Clear the input text
     _commentController.clear();
   }
@@ -65,6 +69,10 @@ class _CommentsScreenState extends State<CommentsScreen> {
 
     return BlocBuilder<CommentBloc, CommentState>(builder: (context, state) {
       if (state is CommentFetch) {
+        context
+            .read<PostBloc>()
+            .add(PostCommentCountUpdated(state.comments.length, widget.postId));
+
         return Column(
           children: [
             Expanded(
@@ -93,7 +101,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
                   suffixIcon: IconButton(
                     onPressed: () {
                       log('Add new comment to the post');
-                      _addCommnent();
+                      _addCommnent(state.comments.length);
                     },
                     icon: const Icon(
                       Icons.send,

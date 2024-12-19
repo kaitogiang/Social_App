@@ -64,6 +64,7 @@ class _PostScreenState extends State<PostScreen> {
               );
             }
           }
+          log('Rebuild the UI');
           return ListView.builder(
             controller: _scrollController,
             itemCount: state.hasReachedMax
