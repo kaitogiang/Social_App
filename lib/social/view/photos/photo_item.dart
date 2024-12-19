@@ -57,18 +57,18 @@ class PhotoItem extends StatelessWidget {
                 //Showing the number of comments in a specific post
                 Container(
                   padding: const EdgeInsets.all(8),
-                  child: const Row(
+                  child: Row(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.comment,
                         color: Colors.white,
                       ),
-                      SizedBox(
+                      const SizedBox(
                         width: 5,
                       ),
                       Text(
-                        '45 comments',
-                        style: TextStyle(
+                        '${photo.commentsCount} comments',
+                        style: const TextStyle(
                           color: Colors.white,
                         ),
                       ),

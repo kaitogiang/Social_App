@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:equatable/equatable.dart';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_social/social/models/photo.dart';
 import 'package:bloc/bloc.dart';
@@ -15,6 +16,7 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     //Register event handlers
     //Posting photo list
     on<PhotoFetched>(_onPhotoFetched);
+    on<PhotoCommentCountUpdated>(_onPhotoCommentCountUpdated);
   }
 
   final http.Client httpClient;
@@ -24,6 +26,10 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     if (state.hasReachedMax) return;
     try {
       final photos = await _fetchPhotos(startIndex: state.photos.length);
+      final newPhotos = await Future.wait(photos.map((photo) async {
+        int commentCount = await _getTheNumberOfComments(postId: photo.id);
+        return photo.copyWith(commentsCount: commentCount);
+      }).toList());
       log('Calling fetch photo method');
       if (photos.isEmpty) {
         return emit(state.copyWith(hasReachedMax: true));
@@ -31,11 +37,31 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
 
       emit(state.copyWith(
         status: PhotoStatus.success,
-        photos: [...state.photos, ...photos],
+        photos: [...state.photos, ...newPhotos],
       ));
     } catch (error) {
       log('Exceptioin: $error');
       emit(state.copyWith(status: PhotoStatus.failure));
+    }
+  }
+
+  Future<void> _onPhotoCommentCountUpdated(
+      PhotoCommentCountUpdated event, Emitter<PhotoState> emit) async {
+    try {
+      //Gettting the current photos list
+      final photos = state.photos;
+      //Finding the specific photo and update its comment count
+      final updatedPhotos = photos.map((currentPhoto) {
+        //Update the commentCount for specific photo
+        if (currentPhoto.id == event.postId) {
+          return currentPhoto.copyWith(commentsCount: event.commentCount);
+        }
+        return currentPhoto;
+      }).toList();
+      //Updating the state of the current photo state
+      emit(state.copyWith(photos: updatedPhotos));
+    } catch (error) {
+      log('Exception in _onPhotoCommentCountUpdated: $error');
     }
   }
 
@@ -56,5 +82,16 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     }
     log('Failed to fetch data');
     throw Exception('Error fetching photos');
+  }
+
+  //Get the number of comments for a specific postId
+  Future<int> _getTheNumberOfComments({required int postId}) async {
+    final response = await httpClient.get(
+        Uri.http('jsonplaceholder.typicode.com', 'posts/$postId/comments'));
+    if (response.statusCode == 200) {
+      final body = json.decode(response.body) as List<dynamic>;
+      return body.length;
+    }
+    return 0;
   }
 }

@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_social/social/bloc/comment_bloc/comment_bloc.dart';
+import 'package:image_social/social/bloc/photo_bloc/photo_bloc.dart';
 import 'package:image_social/social/bloc/post_bloc/post_bloc.dart';
 import 'package:image_social/social/models/comment.dart';
 import 'package:image_social/social/widgets/comment_item.dart';
@@ -55,9 +56,14 @@ class _CommentsScreenState extends State<CommentsScreen> {
         email: 'raide',
         body: _commentController.text);
     context.read<CommentBloc>().add(CommentAddPressed(comment));
+    //Send the event to the Post screen to update the UI
     context
         .read<PostBloc>()
         .add(PostCommentCountUpdated(currentSize + 1, widget.postId));
+    //Send the event to the Photo screen to update the UI
+    context
+        .read<PhotoBloc>()
+        .add(PhotoCommentCountUpdated(currentSize + 1, widget.postId));
     //Clear the input text
     _commentController.clear();
   }
@@ -72,7 +78,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
         context
             .read<PostBloc>()
             .add(PostCommentCountUpdated(state.comments.length, widget.postId));
-
+        context.read<PhotoBloc>().add(
+            PhotoCommentCountUpdated(state.comments.length, widget.postId));
         return Column(
           children: [
             Expanded(
