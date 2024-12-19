@@ -19,6 +19,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     on<PostFetched>(_onPostFetched);
     on<PostCommentCountUpdated>(_onPostCommentCountUpdated);
     on<PostDeletePressed>(_onPostDeleted);
+    on<PostFullRefreshed>(_onFullRefreshed);
   }
 
   final http.Client httpClient;
@@ -64,7 +65,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         return currentPost;
       }).toList();
       emit(state.copyWith(posts: updatedPosts));
-      log('Emit update comment count: ${updatedPosts[0]}');
+      // log('Emit update comment count: ${updatedPosts[0]}');
     } catch (error) {
       log('Exception in _onPostCommentCountUpdated: $error');
     }
@@ -85,6 +86,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
 
         log('Post length after deleted: ${state.posts.length}');
         //Emit the new state for the PostBloc
+        log('delete post-----------');
         emit(state.copyWith(posts: post));
       } else {
         log('Can\'t delete the post :(( ');
@@ -94,12 +96,40 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     }
   }
 
+  Future<void> _onFullRefreshed(
+      PostFullRefreshed event, Emitter<PostState> emit) async {
+    try {
+      //Calling the API for refreshing the current post list.
+      //For example, if the user has fetched the first 20 items, the 20 items
+      //in the list will be re-fetch, likewise, if user has fetched 40 items,
+      //it will re-fetch these 40 items.
+      //Get the current list size
+      final currentSize = state.posts.length;
+      final posts = await _fetchPosts(startIndex: 0, postLimit: currentSize);
+      //the newPosts will retain the number of items that has loaded before
+      final newPosts = await Future.wait(posts.map((post) async {
+        int commentCount = await _getTheNumberOfComments(postId: post.id);
+        return post.copyWith(commentsCount: commentCount);
+      }).toList());
+
+      if (posts.isEmpty) {
+        return emit(state.copyWith(hasReachedMax: true));
+      }
+
+      emit(state.copyWith(status: PostStatus.success, posts: newPosts));
+    } catch (error) {
+      log('Exception in _onFullRefreshed: $error');
+      emit(state.copyWith(status: PostStatus.failure));
+    }
+  }
+
   //Fetch posts from start index
-  Future<List<Post>> _fetchPosts({required int startIndex}) async {
+  Future<List<Post>> _fetchPosts(
+      {required int startIndex, int postLimit = 20}) async {
     final response = await httpClient.get(Uri.http(
       'jsonplaceholder.typicode.com',
       '/posts',
-      <String, String>{'_start': '$startIndex', '_limit': '$_postLimit'},
+      <String, String>{'_start': '$startIndex', '_limit': '$postLimit'},
     ));
 
     if (response.statusCode == 200) {

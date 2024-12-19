@@ -8,6 +8,8 @@ sealed class PostEvent extends Equatable {
 
 final class PostFetched extends PostEvent {}
 
+final class PostFullRefreshed extends PostEvent {}
+
 final class PostCommentCountUpdated extends PostEvent {
   final int commentCount;
   final int postId;

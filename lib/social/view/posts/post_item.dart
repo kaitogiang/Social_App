@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_social/social/bloc/comment_bloc/comment_bloc.dart';
+import 'package:image_social/social/bloc/photo_bloc/photo_bloc.dart';
 import 'package:image_social/social/bloc/post_bloc/post_bloc.dart';
 import 'package:image_social/social/models/post.dart';
 import 'package:image_social/social/view/posts/comments_screen.dart';
@@ -33,6 +34,7 @@ class PostItem extends StatelessWidget {
     if (isDeleted) {
       log('Delete the post immediately');
       context.read<PostBloc>().add(PostDeletePressed(postId));
+      log('Delete photo');
     } else {
       log('Wait, user canceled the action :))');
     }
@@ -40,87 +42,101 @@ class PostItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        //Title of the post
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Text(
-                post.title,
-                style: const TextStyle(
-                  fontSize: 17,
-                  fontWeight: FontWeight.bold,
-                ),
-                maxLines: 2,
-              ),
-            ),
-            PopupMenuButton(
-              itemBuilder: (context) => [
-                PopupMenuItem(
-                  value: 'delete',
-                  child: const Text('Delete'),
-                  onTap: () async {
-                    _deletePostHandler(context, post.id);
-                  },
-                ),
-              ],
-            ),
-          ],
-        ),
-        const SizedBox(
-          height: 10,
-        ),
-        //The comment block of user
-        Text(
-          post.body,
-          style: const TextStyle(fontSize: 13),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-        GestureDetector(
-          onTap: () {
-            log('View comments and add comment');
-            //Emit event to fetch all the relevant comments
-            context.read<CommentBloc>().add(CommentFetched(post.id));
-            //Show the bottom modal to display all the comments for the specific post
-            showBottomDialog(
-              context: context,
-              title: post.title,
-              heightFactor: 0.85,
-              child: CommentsScreen(
-                postId: post.id,
-              ),
-            );
-          },
-          child: Row(
+    return BlocListener<PostBloc, PostState>(
+      listenWhen: (previous, current) {
+        final previousPostCount = previous.posts.length;
+        final currentPostCount = current.posts.length;
+        log('Previous count: $previousPostCount, Current count: $currentPostCount');
+        //Listen for the change when the number of current is smalller than the previous
+        //e.g the user has deleted a post
+        return previousPostCount > currentPostCount;
+      },
+      listener: (context, state) {
+        log('Triggered the delete post action');
+        context.read<PhotoBloc>().add(PhotoDeletePressed(post.id));
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //Title of the post
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              SvgPicture.asset(
-                'assets/images/comment_icon.svg',
-                width: 35,
-                height: 35,
-              ),
-              const SizedBox(
-                width: 5,
-              ),
-              Text(
-                'Comment (${post.commentsCount})',
-                style: const TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  post.title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 2,
                 ),
+              ),
+              PopupMenuButton(
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: const Text('Delete'),
+                    onTap: () async {
+                      _deletePostHandler(context, post.id);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-        const Divider(),
-      ],
+          const SizedBox(
+            height: 10,
+          ),
+          //The comment block of user
+          Text(
+            post.body,
+            style: const TextStyle(fontSize: 13),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          GestureDetector(
+            onTap: () {
+              log('View comments and add comment');
+              //Emit event to fetch all the relevant comments
+              context.read<CommentBloc>().add(CommentFetched(post.id));
+              //Show the bottom modal to display all the comments for the specific post
+              showBottomDialog(
+                context: context,
+                title: post.title,
+                heightFactor: 0.85,
+                child: CommentsScreen(
+                  postId: post.id,
+                ),
+              );
+            },
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  'assets/images/comment_icon.svg',
+                  width: 35,
+                  height: 35,
+                ),
+                const SizedBox(
+                  width: 5,
+                ),
+                Text(
+                  'Comment (${post.commentsCount})',
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 8,
+          ),
+          const Divider(),
+        ],
+      ),
     );
   }
 }

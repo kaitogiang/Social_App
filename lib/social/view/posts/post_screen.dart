@@ -2,6 +2,7 @@ import 'dart:developer';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import 'package:flutter/material.dart';
+import 'package:image_social/social/bloc/photo_bloc/photo_bloc.dart';
 import 'package:image_social/social/bloc/post_bloc/post_bloc.dart';
 import 'package:image_social/social/view/posts/post_item.dart';
 import 'package:image_social/social/widgets/bottom_loader.dart';
@@ -50,7 +51,7 @@ class _PostScreenState extends State<PostScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: () async {
-          context.read<PostBloc>().add(PostFetched());
+          context.read<PostBloc>().add(PostFullRefreshed());
         },
         child: BlocBuilder<PostBloc, PostState>(builder: (context, state) {
           if (state.status == PostStatus.failure) {

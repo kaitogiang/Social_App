@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_social/social/models/photo.dart';
 import 'package:bloc/bloc.dart';
@@ -17,6 +16,7 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     //Posting photo list
     on<PhotoFetched>(_onPhotoFetched);
     on<PhotoCommentCountUpdated>(_onPhotoCommentCountUpdated);
+    on<PhotoDeletePressed>(_onPhotoDeleted);
   }
 
   final http.Client httpClient;
@@ -62,6 +62,19 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
       emit(state.copyWith(photos: updatedPhotos));
     } catch (error) {
       log('Exception in _onPhotoCommentCountUpdated: $error');
+    }
+  }
+
+  Future<void> _onPhotoDeleted(
+      PhotoDeletePressed event, Emitter<PhotoState> emit) async {
+    try {
+      //getting the current photo list
+      final photos = [...state.photos];
+      photos.removeWhere((post) => post.id == event.postId);
+      //Emit the new state for updating the UI
+      emit(state.copyWith(photos: photos));
+    } catch (error) {
+      log('Exception in _onPhotoDeleted: $error');
     }
   }
 
