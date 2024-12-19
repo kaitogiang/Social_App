@@ -7,6 +7,7 @@ import 'package:image_social/social/models/post.dart';
 import 'package:image_social/social/view/posts/comments_screen.dart';
 import 'package:image_social/social/widgets/bottom_modal.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:quickalert/quickalert.dart';
 
 class PostItem extends StatelessWidget {
   const PostItem({
@@ -15,6 +16,25 @@ class PostItem extends StatelessWidget {
   });
 
   final Post post;
+
+  void _deletePostHandler(BuildContext context) async {
+    //Show confirm dialog to authenticate the action
+    final isDeleted = await QuickAlert.show(
+      context: context,
+      type: QuickAlertType.confirm,
+      text: 'This post will be deteted and can\'t reverse the action ',
+      confirmBtnText: 'Delete it',
+      onCancelBtnTap: () =>
+          Navigator.of(context, rootNavigator: true).pop(false),
+      onConfirmBtnTap: () =>
+          Navigator.of(context, rootNavigator: true).pop(true),
+    ) as bool;
+    if (isDeleted) {
+      log('Delete the post immediately');
+    } else {
+      log('Wait, user canceled the action :))');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,25 +57,15 @@ class PostItem extends StatelessWidget {
             ),
             PopupMenuButton(
               itemBuilder: (context) => [
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'delete',
                   child: Text('Delete'),
+                  onTap: () async {
+                    _deletePostHandler(context);
+                  },
                 ),
               ],
             ),
-            // IconButton(
-            //   onPressed: () {
-            //     log('Action for Post');
-            //     showMenu(
-            //       context: context,
-            //       items: [
-            //         const PopupMenuItem(child: Text('Delete')),
-            //       ],
-            //       position: const RelativeRect.fromLTRB(10, 10, 10, 10),
-            //     );
-            //   },
-            //   icon: const Icon(Icons.more_vert),
-            // ),
           ],
         ),
         const SizedBox(
