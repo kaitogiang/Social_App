@@ -48,32 +48,38 @@ class _PostScreenState extends State<PostScreen> {
       appBar: AppBar(
         title: const Text('All posts'),
       ),
-      body: BlocBuilder<PostBloc, PostState>(builder: (context, state) {
-        if (state.status == PostStatus.failure) {
-          return const Center(
-            child: Text('Failed to fetch posts'),
-          );
-        } else if (state.status == PostStatus.success) {
-          if (state.posts.isEmpty) {
+      body: RefreshIndicator(
+        onRefresh: () async {
+          context.read<PostBloc>().add(PostFetched());
+        },
+        child: BlocBuilder<PostBloc, PostState>(builder: (context, state) {
+          if (state.status == PostStatus.failure) {
             return const Center(
-              child: Text('No posts'),
+              child: Text('Failed to fetch posts'),
             );
+          } else if (state.status == PostStatus.success) {
+            if (state.posts.isEmpty) {
+              return const Center(
+                child: Text('No posts'),
+              );
+            }
           }
-        }
-        return ListView.builder(
-          controller: _scrollController,
-          itemCount:
-              state.hasReachedMax ? state.posts.length : state.posts.length + 1,
-          itemBuilder: (context, index) => index >= state.posts.length
-              ? const BottomLoader()
-              : Padding(
-                  padding: const EdgeInsets.all(10.0),
-                  child: PostItem(
-                    post: state.posts[index],
+          return ListView.builder(
+            controller: _scrollController,
+            itemCount: state.hasReachedMax
+                ? state.posts.length
+                : state.posts.length + 1,
+            itemBuilder: (context, index) => index >= state.posts.length
+                ? const BottomLoader()
+                : Padding(
+                    padding: const EdgeInsets.all(10.0),
+                    child: PostItem(
+                      post: state.posts[index],
+                    ),
                   ),
-                ),
-        );
-      }),
+          );
+        }),
+      ),
     );
   }
 }
