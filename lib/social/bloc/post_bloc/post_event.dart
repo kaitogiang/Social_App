@@ -17,3 +17,12 @@ final class PostCommentCountUpdated extends PostEvent {
   @override
   List<Object> get props => [commentCount, postId];
 }
+
+final class PostDeletePressed extends PostEvent {
+  final int postId;
+
+  const PostDeletePressed(this.postId);
+
+  @override
+  List<Object> get props => [postId];
+}

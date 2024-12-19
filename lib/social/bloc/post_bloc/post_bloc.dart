@@ -18,6 +18,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     //Event for handling gettting posts data
     on<PostFetched>(_onPostFetched);
     on<PostCommentCountUpdated>(_onPostCommentCountUpdated);
+    on<PostDeletePressed>(_onPostDeleted);
   }
 
   final http.Client httpClient;
@@ -69,6 +70,30 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     }
   }
 
+  Future<void> _onPostDeleted(
+      PostDeletePressed event, Emitter<PostState> emit) async {
+    try {
+      //Calling the API for deleting the post based on its id
+      final isDeleted = await _deletePost(postId: event.postId);
+      if (isDeleted) {
+        log('Delete the post sucessfully');
+        //If success, emit the new state for the post list
+        //Delete the specific post from the current state
+        log('Post length before deleted: ${state.posts.length}');
+        final post = [...state.posts];
+        post.removeWhere((post) => post.id == event.postId);
+
+        log('Post length after deleted: ${state.posts.length}');
+        //Emit the new state for the PostBloc
+        emit(state.copyWith(posts: post));
+      } else {
+        log('Can\'t delete the post :(( ');
+      }
+    } catch (error) {
+      log('Exception in _onPostDeleted: $error');
+    }
+  }
+
   //Fetch posts from start index
   Future<List<Post>> _fetchPosts({required int startIndex}) async {
     final response = await httpClient.get(Uri.http(
@@ -99,5 +124,15 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       return body.length;
     }
     return 0;
+  }
+
+  Future<bool> _deletePost({required int postId}) async {
+    final response = await httpClient
+        .delete(Uri.http('jsonplaceholder.typicode.com', '/posts/$postId'));
+
+    if (response.statusCode == 200) {
+      return true;
+    }
+    return false;
   }
 }

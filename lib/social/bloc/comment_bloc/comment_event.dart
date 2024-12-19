@@ -19,10 +19,6 @@ final class CommentFetched extends CommentEvent {
 
 //Event for adding a comment
 final class CommentAddPressed extends CommentEvent {
-  // final int postId;
-  // final String comment;
-  // final String name;
-  // final String email;
   final Comment comment;
 
   const CommentAddPressed(this.comment);

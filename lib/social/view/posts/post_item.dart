@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_social/social/bloc/comment_bloc/comment_bloc.dart';
+import 'package:image_social/social/bloc/post_bloc/post_bloc.dart';
 import 'package:image_social/social/models/post.dart';
 import 'package:image_social/social/view/posts/comments_screen.dart';
 import 'package:image_social/social/widgets/bottom_modal.dart';
@@ -17,7 +18,7 @@ class PostItem extends StatelessWidget {
 
   final Post post;
 
-  void _deletePostHandler(BuildContext context) async {
+  void _deletePostHandler(BuildContext context, int postId) async {
     //Show confirm dialog to authenticate the action
     final isDeleted = await QuickAlert.show(
       context: context,
@@ -31,6 +32,7 @@ class PostItem extends StatelessWidget {
     ) as bool;
     if (isDeleted) {
       log('Delete the post immediately');
+      context.read<PostBloc>().add(PostDeletePressed(postId));
     } else {
       log('Wait, user canceled the action :))');
     }
@@ -59,9 +61,9 @@ class PostItem extends StatelessWidget {
               itemBuilder: (context) => [
                 PopupMenuItem(
                   value: 'delete',
-                  child: Text('Delete'),
+                  child: const Text('Delete'),
                   onTap: () async {
-                    _deletePostHandler(context);
+                    _deletePostHandler(context, post.id);
                   },
                 ),
               ],

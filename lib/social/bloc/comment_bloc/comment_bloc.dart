@@ -38,6 +38,8 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
   Future<void> _onCommentAdded(
       CommentAddPressed event, Emitter<CommentState> emit) async {
     try {
+      await Future.delayed(const Duration(seconds: 10));
+      log('Add comment......');
       final currentComments = (state as CommentFetch).comments;
       log('Current comment size: ${currentComments.length}');
       final comment = event.comment.copyWith(id: currentComments.length);

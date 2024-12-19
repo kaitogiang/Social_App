@@ -55,7 +55,11 @@ class _CommentsScreenState extends State<CommentsScreen> {
         name: 'Raiden Shogun',
         email: 'raide',
         body: _commentController.text);
+
+    ///Fix......
     context.read<CommentBloc>().add(CommentAddPressed(comment));
+
+    log('hellllllldsd');
     //Send the event to the Post screen to update the UI
     context
         .read<PostBloc>()
