@@ -18,9 +18,6 @@ class PhotoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final url = 'https://via.placeholder.com/600/92c952';
-    // final thumbnailUrl = 'https://via.placeholder.com/150/92c952';
-    // final title = 'accusamus beatae ad facilis cum similique qui sunt';
     return Container(
       padding: const EdgeInsets.only(bottom: 70),
       decoration: BoxDecoration(
@@ -33,29 +30,56 @@ class PhotoItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           ThumbnailCard(thumbnailUrl: photo.thumbnailUrl, title: photo.title),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              //Showing the tag for this image
-              const Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  TagChip(
-                    tag: '#amazing',
+          FractionallySizedBox(
+            widthFactor: 0.9,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                //Showing the tag for this image
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: [
+                      TagChip(
+                        tag: '#amazing',
+                      ),
+                      TagChip(
+                        tag: '#air_balloon',
+                      ),
+                    ],
                   ),
-                  TagChip(
-                    tag: '#air_balloon',
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                //Showing the number of comments in a specific post
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  child: const Row(
+                    children: [
+                      Icon(
+                        Icons.comment,
+                        color: Colors.white,
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Text(
+                        '45 comments',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              //Showing the comment field
-              FractionallySizedBox(
-                widthFactor: 0.9,
-                child: Container(
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                //Showing the comment field
+                Container(
                   decoration: BoxDecoration(
                       color: Colors.black54.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(30)),
@@ -94,11 +118,11 @@ class PhotoItem extends StatelessWidget {
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
+                const SizedBox(
+                  height: 10,
+                ),
+              ],
+            ),
           ),
         ],
       ),

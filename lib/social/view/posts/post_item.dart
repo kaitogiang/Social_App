@@ -22,13 +22,41 @@ class PostItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         //Title of the post
-        Text(
-          post.title,
-          style: const TextStyle(
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
-          ),
-          maxLines: 2,
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              child: Text(
+                post.title,
+                style: const TextStyle(
+                  fontSize: 17,
+                  fontWeight: FontWeight.bold,
+                ),
+                maxLines: 2,
+              ),
+            ),
+            PopupMenuButton(
+              itemBuilder: (context) => [
+                const PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete'),
+                ),
+              ],
+            ),
+            // IconButton(
+            //   onPressed: () {
+            //     log('Action for Post');
+            //     showMenu(
+            //       context: context,
+            //       items: [
+            //         const PopupMenuItem(child: Text('Delete')),
+            //       ],
+            //       position: const RelativeRect.fromLTRB(10, 10, 10, 10),
+            //     );
+            //   },
+            //   icon: const Icon(Icons.more_vert),
+            // ),
+          ],
         ),
         const SizedBox(
           height: 10,
@@ -51,7 +79,9 @@ class PostItem extends StatelessWidget {
               context: context,
               title: post.title,
               heightFactor: 0.85,
-              child: CommentsScreen(postId: post.id,),
+              child: CommentsScreen(
+                postId: post.id,
+              ),
             );
           },
           child: Row(

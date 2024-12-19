@@ -42,21 +42,26 @@ class _PhotoScreenState extends State<PhotoScreen> {
           }
         }
 
-        return PageView(
-          controller: _pageController,
-          scrollDirection: Axis.vertical,
-          onPageChanged: (value) {
-            log('Current index page: $value');
-            //Fetching additional photo when the user has reached the restricted amount of photos
-            if (value == state.photos.length - 2) {
-              log('Photo fetch method');
-              context.read<PhotoBloc>().add(PhotoFetched());
-            }
+        return RefreshIndicator(
+          onRefresh: () async {
+            context.read<PhotoBloc>().add(PhotoFetched());
           },
-          children: List<Widget>.generate(
-            state.photos.length,
-            (index) => PhotoItem(
-              photo: state.photos[index],
+          child: PageView(
+            controller: _pageController,
+            scrollDirection: Axis.vertical,
+            onPageChanged: (value) {
+              log('Current index page: $value');
+              //Fetching additional photo when the user has reached the restricted amount of photos
+              if (value == state.photos.length - 2) {
+                log('Photo fetch method');
+                context.read<PhotoBloc>().add(PhotoFetched());
+              }
+            },
+            children: List<Widget>.generate(
+              state.photos.length,
+              (index) => PhotoItem(
+                photo: state.photos[index],
+              ),
             ),
           ),
         );

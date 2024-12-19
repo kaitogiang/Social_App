@@ -18,19 +18,22 @@ class ScaffoldWithNavBar extends StatelessWidget {
           Container(
             alignment: Alignment.bottomCenter,
             padding: const EdgeInsets.only(left: 10, right: 10, bottom: 10),
-            child: BottomNavigationBar(
-              currentIndex: navigationShell.currentIndex,
-              onTap: (index) => _onTap(context, index),
-              items: [
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.photo),
-                  label: 'Photos',
-                ),
-                BottomNavigationBarItem(
-                  icon: Icon(Icons.comment),
-                  label: 'Posts',
-                )
-              ],
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(10),
+              child: BottomNavigationBar(
+                currentIndex: navigationShell.currentIndex,
+                onTap: (index) => _onTap(context, index),
+                items: [
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.photo),
+                    label: 'Photos',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: Icon(Icons.comment),
+                    label: 'Posts',
+                  )
+                ],
+              ),
             ),
           ),
         ],
