@@ -1,8 +1,12 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:image_social/social/bloc/comment_bloc/comment_bloc.dart';
 import 'package:image_social/social/models/photo.dart';
 import 'package:image_social/social/view/photos/thumbnail_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:image_social/social/view/posts/comments_screen.dart';
+import 'package:image_social/social/widgets/bottom_modal.dart';
 
 class PhotoItem extends StatelessWidget {
   const PhotoItem({
@@ -55,6 +59,20 @@ class PhotoItem extends StatelessWidget {
                       color: Colors.black54.withOpacity(0.4),
                       borderRadius: BorderRadius.circular(30)),
                   child: TextFormField(
+                    onTap: () {
+                      //Showing the comment screen of a specific id
+                      context.read<CommentBloc>().add(CommentFetched(photo.id));
+                      //Show the bottom modal to display all the comments for the specific post
+                      showBottomDialog(
+                        context: context,
+                        title: photo.title,
+                        heightFactor: 0.85,
+                        child: CommentsScreen(
+                          postId: photo.id,
+                        ),
+                      );
+                    },
+                    readOnly: true,
                     decoration: InputDecoration(
                       hintText: 'Add comment',
                       hintStyle:

@@ -30,6 +30,7 @@ class _CommentsScreenState extends State<CommentsScreen> {
     super.dispose();
     _commentController.dispose();
     _scrollController.dispose();
+    _focusNode.unfocus();
     _focusNode.dispose();
   }
 
@@ -87,14 +88,17 @@ class _CommentsScreenState extends State<CommentsScreen> {
                 decoration: InputDecoration(
                   hintText: 'Add your comment here',
                   border: const OutlineInputBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
                   ),
                   suffixIcon: IconButton(
                     onPressed: () {
                       log('Add new comment to the post');
                       _addCommnent();
                     },
-                    icon: const Icon(Icons.send),
+                    icon: const Icon(
+                      Icons.send,
+                      color: Colors.blue,
+                    ),
                   ),
                 ),
               ),

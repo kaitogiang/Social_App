@@ -23,6 +23,7 @@ class CommentBloc extends Bloc<CommentEvent, CommentState> {
       CommentFetched event, Emitter<CommentState> emit) async {
     try {
       // final cachedComments = (state as CommentFetch).comments;
+      // log('Comment size: ${cachedComments.length}');
       final comments = await _fetchComments(postId: event.postId);
       // final newComments = (state as CommentFetch)
       //     .copyWith(comments: [...cachedComments, ...comments]);
