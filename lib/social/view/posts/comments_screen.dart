@@ -59,15 +59,8 @@ class _CommentsScreenState extends State<CommentsScreen> {
     ///Fix......
     context.read<CommentBloc>().add(CommentAddPressed(comment));
 
-    log('hellllllldsd');
-    //Send the event to the Post screen to update the UI
-    context
-        .read<PostBloc>()
-        .add(PostCommentCountUpdated(currentSize + 1, widget.postId));
-    //Send the event to the Photo screen to update the UI
-    context
-        .read<PhotoBloc>()
-        .add(PhotoCommentCountUpdated(currentSize + 1, widget.postId));
+    // log('hellllllldsd');
+
     //Clear the input text
     _commentController.clear();
   }
@@ -77,7 +70,23 @@ class _CommentsScreenState extends State<CommentsScreen> {
     //Listen for the keyboard appearance
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
-    return BlocBuilder<CommentBloc, CommentState>(builder: (context, state) {
+    return BlocConsumer<CommentBloc, CommentState>(listener: (context, state) {
+      //When the CommentState changes, trigger the subsequent event
+      //to update the difference UI
+      //E.g when the comment has added to the Comment screen completely,
+      //this widget will triggered the related event to update the other screen.
+      log('Comment has added to the screen');
+      // log('Current size of the comment ${(state as CommentFetch).comments.length}');
+      final updatedCommentCount = (state as CommentFetch).comments.length;
+      //Send the event to the Post screen to update the UI
+      context
+          .read<PostBloc>()
+          .add(PostCommentCountUpdated(updatedCommentCount, widget.postId));
+      //Send the event to the Photo screen to update the UI
+      context
+          .read<PhotoBloc>()
+          .add(PhotoCommentCountUpdated(updatedCommentCount, widget.postId));
+    }, builder: (context, state) {
       if (state is CommentFetch) {
         context
             .read<PostBloc>()
