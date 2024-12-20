@@ -12,7 +12,9 @@ part 'photo_state.dart';
 const _photoLimit = 10;
 
 final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
-  PhotoBloc({required this.httpClient}) : super(const PhotoState()) {
+  PhotoBloc({
+    required this.httpClient,
+  }) : super(const PhotoState()) {
     //Register event handlers
     //Posting photo list
     on<PhotoFetched>(_onPhotoFetched);

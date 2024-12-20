@@ -22,9 +22,10 @@ final class PostCommentCountUpdated extends PostEvent {
 
 final class PostDeletePressed extends PostEvent {
   final int postId;
+  final Function function;
 
-  const PostDeletePressed(this.postId);
+  const PostDeletePressed({required this.postId, required this.function});
 
   @override
-  List<Object> get props => [postId];
+  List<Object> get props => [postId, function];
 }

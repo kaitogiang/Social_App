@@ -32,7 +32,9 @@ class MyApp extends StatelessWidget {
         BlocProvider(
           create: (_) {
             log('Integrating BlocProvider into widget treee');
-            return PostBloc(httpClient: http.Client())..add(PostFetched());
+            return PostBloc(
+                httpClient: http.Client(),)
+              ..add(PostFetched());
           },
         ),
         BlocProvider(create: (_) {

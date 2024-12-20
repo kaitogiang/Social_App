@@ -33,7 +33,12 @@ class PostItem extends StatelessWidget {
     ) as bool;
     if (isDeleted) {
       log('Delete the post immediately');
-      context.read<PostBloc>().add(PostDeletePressed(postId));
+      context.read<PostBloc>().add(PostDeletePressed(postId: postId, function: () {
+        log('Delete the coressponding image');
+                          context
+                              .read<PhotoBloc>()
+                              .add(PhotoDeletePressed(post.id));
+      }));
       log('Delete photo');
     } else {
       log('Wait, user canceled the action :))');
@@ -79,19 +84,19 @@ class PostItem extends StatelessWidget {
                     child: const Text('Delete'),
                     onTap: () async {
                       _deletePostHandler(context, post.id);
-                      final postBloc = context.read<PostBloc>();
-                      await for (final state in postBloc.stream) {
-                        if (state.status == PostStatus.success) {
-                          log('Delete the coressponding image');
-                          context
-                              .read<PhotoBloc>()
-                              .add(PhotoDeletePressed(post.id));
-                        } else if (state.status == PostStatus.deleting) {
-                          log('Is deleting.........');
-                        } else {
-                          log('Cant delete post');
-                        }
-                      }
+                      // final postBloc = context.read<PostBloc>();
+                      // await for (final state in postBloc.stream) {
+                      //   if (state.status == PostStatus.success) {
+                      //     log('Delete the coressponding image');
+                      //     context
+                      //         .read<PhotoBloc>()
+                      //         .add(PhotoDeletePressed(post.id));
+                      //   } else if (state.status == PostStatus.deleting) {
+                      //     log('Is deleting.........');
+                      //   } else {
+                      //     log('Cant delete post');
+                      //   }
+                      // }
                     },
                   ),
                 ],
