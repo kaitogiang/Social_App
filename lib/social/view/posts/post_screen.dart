@@ -32,22 +32,29 @@ class _PostScreenState extends State<PostScreen> {
   //Function for handling scroll action
   void _onScroll() {
     if (_isBottom) context.read<PostBloc>().add(PostFetched());
-    if (_isBottom) log('Calling fetch the next 20 items');
+    if (_isBottom) {
+      log('Calling fetch the next 20 items');
+    }
   }
 
   bool get _isBottom {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.offset;
+    // log('Max scroll * 0.9: ${maxScroll * 0.9}, Current scroll: $currentScroll');
     // log('currentScroll: $currentScroll, maxScroll: ${maxScroll * 0.9}, => ${currentScroll >= maxScroll * 0.9}');
-    return currentScroll >= (maxScroll * 0.9);
+    // return currentScroll >= (maxScroll * 0.9);
+    return currentScroll == maxScroll;
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('All posts'),
+        title: BlocBuilder<PostBloc, PostState>(builder: (context, state) {
+          log('Current State: ${state.posts.length}');
+          return Text('All posts (${state.posts.length})');
+        }),
         actions: [
           IconButton(
             onPressed: () {
@@ -73,20 +80,24 @@ class _PostScreenState extends State<PostScreen> {
               );
             }
           }
-          log('Rebuild the UI');
+          log('Rebuild the UI: ${state.posts.length}');
+
           return ListView.builder(
             controller: _scrollController,
             itemCount: state.hasReachedMax
                 ? state.posts.length
                 : state.posts.length + 1,
-            itemBuilder: (context, index) => index >= state.posts.length
-                ? const BottomLoader()
-                : Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: PostItem(
-                      post: state.posts[index],
-                    ),
-                  ),
+            itemBuilder: (context, index) {
+              return index >= state.posts.length
+                  // return state.status == PostStatus.loading
+                  ? const BottomLoader()
+                  : Padding(
+                      padding: const EdgeInsets.all(10.0),
+                      child: PostItem(
+                        post: state.posts[index],
+                      ),
+                    );
+            },
           );
         }),
       ),

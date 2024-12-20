@@ -28,6 +28,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       PostFetched event, Emitter<PostState> emit) async {
     if (state.hasReachedMax) return;
     try {
+      emit(state.copyWith(status: PostStatus.loading));
       final posts = await _fetchPosts(startIndex: state.posts.length);
       final newPosts = await Future.wait(posts.map((post) async {
         int commentsCount = await _getTheNumberOfComments(postId: post.id);
@@ -105,7 +106,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       //it will re-fetch these 40 items.
       //Get the current list size
       final currentSize = state.posts.length;
-      final posts = await _fetchPosts(startIndex: 0, postLimit: currentSize);
+      final posts = await _fetchPosts(startIndex: 0, postLimit: 20);
       //the newPosts will retain the number of items that has loaded before
       final newPosts = await Future.wait(posts.map((post) async {
         int commentCount = await _getTheNumberOfComments(postId: post.id);
