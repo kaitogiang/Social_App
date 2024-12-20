@@ -8,6 +8,8 @@ sealed class PhotoEvent extends Equatable {
 
 final class PhotoFetched extends PhotoEvent {}
 
+final class PhotoFullRefreshed extends PhotoEvent {}
+
 final class PhotoCommentCountUpdated extends PhotoEvent {
   final int commentCount;
   final int postId;

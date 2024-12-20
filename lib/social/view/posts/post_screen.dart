@@ -39,7 +39,7 @@ class _PostScreenState extends State<PostScreen> {
     if (!_scrollController.hasClients) return false;
     final maxScroll = _scrollController.position.maxScrollExtent;
     final currentScroll = _scrollController.offset;
-    log('currentScroll: $currentScroll, maxScroll: ${maxScroll * 0.9}, => ${currentScroll >= maxScroll * 0.9}');
+    // log('currentScroll: $currentScroll, maxScroll: ${maxScroll * 0.9}, => ${currentScroll >= maxScroll * 0.9}');
     return currentScroll >= (maxScroll * 0.9);
   }
 
@@ -48,6 +48,14 @@ class _PostScreenState extends State<PostScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('All posts'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              log('Adding new post');
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
       ),
       body: RefreshIndicator(
         onRefresh: () async {

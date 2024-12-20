@@ -52,8 +52,8 @@ class PostItem extends StatelessWidget {
         return previousPostCount > currentPostCount;
       },
       listener: (context, state) {
-        log('Triggered the delete post action');
-        context.read<PhotoBloc>().add(PhotoDeletePressed(post.id));
+        log('Triggered the delete post action: ${post.id}');
+        // context.read<PhotoBloc>().add(PhotoDeletePressed(post.id));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,6 +79,19 @@ class PostItem extends StatelessWidget {
                     child: const Text('Delete'),
                     onTap: () async {
                       _deletePostHandler(context, post.id);
+                      final postBloc = context.read<PostBloc>();
+                      await for (final state in postBloc.stream) {
+                        if (state.status == PostStatus.success) {
+                          log('Delete the coressponding image');
+                          context
+                              .read<PhotoBloc>()
+                              .add(PhotoDeletePressed(post.id));
+                        } else if (state.status == PostStatus.deleting) {
+                          log('Is deleting.........');
+                        } else {
+                          log('Cant delete post');
+                        }
+                      }
                     },
                   ),
                 ],

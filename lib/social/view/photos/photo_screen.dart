@@ -44,7 +44,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
 
         return RefreshIndicator(
           onRefresh: () async {
-            context.read<PhotoBloc>().add(PhotoFetched());
+            context.read<PhotoBloc>().add(PhotoFullRefreshed());
           },
           child: PageView(
             controller: _pageController,

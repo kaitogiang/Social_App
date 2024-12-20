@@ -74,22 +74,22 @@ class PostBloc extends Bloc<PostEvent, PostState> {
   Future<void> _onPostDeleted(
       PostDeletePressed event, Emitter<PostState> emit) async {
     try {
+      emit(state.copyWith(status: PostStatus.deleting));
       //Calling the API for deleting the post based on its id
       final isDeleted = await _deletePost(postId: event.postId);
       if (isDeleted) {
         log('Delete the post sucessfully');
         //If success, emit the new state for the post list
         //Delete the specific post from the current state
-        log('Post length before deleted: ${state.posts.length}');
         final post = [...state.posts];
         post.removeWhere((post) => post.id == event.postId);
-
-        log('Post length after deleted: ${state.posts.length}');
         //Emit the new state for the PostBloc
-        log('delete post-----------');
-        emit(state.copyWith(posts: post));
+        emit(
+          state.copyWith(posts: post, status: PostStatus.success),
+        );
       } else {
         log('Can\'t delete the post :(( ');
+        emit(state.copyWith(status: PostStatus.failure));
       }
     } catch (error) {
       log('Exception in _onPostDeleted: $error');

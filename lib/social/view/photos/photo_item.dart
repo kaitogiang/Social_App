@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_social/social/bloc/comment_bloc/comment_bloc.dart';
 import 'package:image_social/social/models/photo.dart';
@@ -18,115 +19,131 @@ class PhotoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(bottom: 70),
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: NetworkImage(photo.url),
-          fit: BoxFit.cover,
-        ),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ThumbnailCard(thumbnailUrl: photo.thumbnailUrl, title: photo.title),
-          FractionallySizedBox(
-            widthFactor: 0.9,
+    return CachedNetworkImage(
+        imageUrl: photo.url,
+        placeholder: (context, url) => Container(
+              alignment: Alignment.center,
+              child: const CircularProgressIndicator(),
+            ),
+        errorWidget: (context, url, error) => FractionallySizedBox(
+              widthFactor: 0.5,
+              heightFactor: 0.5,
+              child: Image.asset('assets/images/failed_icon.png'),
+            ),
+        imageBuilder: (context, imageProvider) {
+          return Container(
+            padding: const EdgeInsets.only(bottom: 70),
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //Showing the tag for this image
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
+                ThumbnailCard(
+                    thumbnailUrl: photo.thumbnailUrl, title: photo.title),
+                FractionallySizedBox(
+                  widthFactor: 0.9,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      TagChip(
-                        tag: '#amazing',
-                      ),
-                      TagChip(
-                        tag: '#air_balloon',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                //Showing the number of comments in a specific post
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    children: [
-                      const Icon(
-                        Icons.comment,
-                        color: Colors.white,
+                      //Showing the tag for this image
+                      const Align(
+                        alignment: Alignment.centerLeft,
+                        child: Wrap(
+                          spacing: 5,
+                          runSpacing: 5,
+                          children: [
+                            TagChip(
+                              tag: '#amazing',
+                            ),
+                            TagChip(
+                              tag: '#air_balloon',
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(
-                        width: 5,
+                        height: 10,
                       ),
-                      Text(
-                        '${photo.commentsCount} comments',
-                        style: const TextStyle(
-                          color: Colors.white,
+                      //Showing the number of comments in a specific post
+                      Container(
+                        padding: const EdgeInsets.all(8),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.comment,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            Text(
+                              '${photo.commentsCount} comments',
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
                         ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      //Showing the comment field
+                      Container(
+                        decoration: BoxDecoration(
+                            color: Colors.black54.withOpacity(0.4),
+                            borderRadius: BorderRadius.circular(30)),
+                        child: TextFormField(
+                          onTap: () {
+                            //Showing the comment screen of a specific id
+                            context
+                                .read<CommentBloc>()
+                                .add(CommentFetched(photo.id));
+                            //Show the bottom modal to display all the comments for the specific post
+                            showBottomDialog(
+                              context: context,
+                              title: photo.title,
+                              heightFactor: 0.85,
+                              child: CommentsScreen(
+                                postId: photo.id,
+                              ),
+                            );
+                          },
+                          readOnly: true,
+                          decoration: InputDecoration(
+                            hintText: 'Add comment',
+                            hintStyle:
+                                TextStyle(color: Colors.white.withOpacity(0.4)),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(30),
+                              borderSide: BorderSide.none,
+                            ),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                log('Send comment');
+                              },
+                              icon: const Icon(
+                                Icons.send,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                //Showing the comment field
-                Container(
-                  decoration: BoxDecoration(
-                      color: Colors.black54.withOpacity(0.4),
-                      borderRadius: BorderRadius.circular(30)),
-                  child: TextFormField(
-                    onTap: () {
-                      //Showing the comment screen of a specific id
-                      context.read<CommentBloc>().add(CommentFetched(photo.id));
-                      //Show the bottom modal to display all the comments for the specific post
-                      showBottomDialog(
-                        context: context,
-                        title: photo.title,
-                        heightFactor: 0.85,
-                        child: CommentsScreen(
-                          postId: photo.id,
-                        ),
-                      );
-                    },
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      hintText: 'Add comment',
-                      hintStyle:
-                          TextStyle(color: Colors.white.withOpacity(0.4)),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(30),
-                        borderSide: BorderSide.none,
-                      ),
-                      suffixIcon: IconButton(
-                        onPressed: () {
-                          log('Send comment');
-                        },
-                        icon: const Icon(
-                          Icons.send,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 10,
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          );
+        });
   }
 }
 

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:equatable/equatable.dart';
 import 'package:http/http.dart' as http;
+import 'package:image_social/social/bloc/post_bloc/post_bloc.dart';
 import 'package:image_social/social/models/photo.dart';
 import 'package:bloc/bloc.dart';
 
@@ -17,6 +18,7 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     on<PhotoFetched>(_onPhotoFetched);
     on<PhotoCommentCountUpdated>(_onPhotoCommentCountUpdated);
     on<PhotoDeletePressed>(_onPhotoDeleted);
+    on<PhotoFullRefreshed>(_onPhotoFullRefreshed);
   }
 
   final http.Client httpClient;
@@ -70,7 +72,9 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     try {
       //getting the current photo list
       final photos = [...state.photos];
+      log('PostId is: ${event.postId}');
       photos.removeWhere((post) => post.id == event.postId);
+      log('After delete photo: ${photos.length}');
       //Emit the new state for updating the UI
       emit(state.copyWith(photos: photos));
     } catch (error) {
@@ -78,12 +82,34 @@ final class PhotoBloc extends Bloc<PhotoEvent, PhotoState> {
     }
   }
 
+  Future<void> _onPhotoFullRefreshed(
+      PhotoFullRefreshed event, Emitter<PhotoState> emit) async {
+    try {
+      //Get the current photo list size
+      final currentSize = state.photos.length;
+      final photos = await _fetchPhotos(startIndex: 0, photoLimit: currentSize);
+      //The new phots will retain the number of items that has loaded before
+      final newPosts = await Future.wait(photos.map((photo) async {
+        int commentCount = await _getTheNumberOfComments(postId: photo.id);
+        return photo.copyWith(commentsCount: commentCount);
+      }).toList());
+      if (photos.isEmpty) {
+        return emit(state.copyWith(hasReachedMax: true));
+      }
+      emit(state.copyWith(status: PhotoStatus.success, photos: newPosts));
+    } catch (error) {
+      log('Exception in _onPhotoFullRefreshed: $error');
+      emit(state.copyWith(status: PhotoStatus.failure));
+    }
+  }
+
   //Fetching data from server
-  Future<List<Photo>> _fetchPhotos({required int startIndex}) async {
+  Future<List<Photo>> _fetchPhotos(
+      {required int startIndex, int photoLimit = 10}) async {
     final response = await httpClient.get(Uri.http(
         'jsonplaceholder.typicode.com',
         '/photos',
-        <String, String>{'_start': '$startIndex', '_limit': '$_photoLimit'}));
+        <String, String>{'_start': '$startIndex', '_limit': '$photoLimit'}));
 
     if (response.statusCode == 200) {
       log('Success fetch photos');
