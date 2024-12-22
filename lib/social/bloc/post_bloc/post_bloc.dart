@@ -80,6 +80,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
       final isDeleted = await _deletePost(postId: event.postId);
       if (isDeleted) {
         log('Delete the post sucessfully');
+        // await Future.delayed(Duration(seconds: 5));
         //If success, emit the new state for the post list
         //Delete the specific post from the current state
         final post = [...state.posts];
@@ -88,6 +89,7 @@ class PostBloc extends Bloc<PostEvent, PostState> {
         emit(
           state.copyWith(posts: post, status: PostStatus.success),
         );
+        event.function();
       } else {
         log('Can\'t delete the post :(( ');
         emit(state.copyWith(status: PostStatus.failure));

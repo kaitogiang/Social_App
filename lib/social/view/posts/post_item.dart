@@ -33,12 +33,28 @@ class PostItem extends StatelessWidget {
     ) as bool;
     if (isDeleted) {
       log('Delete the post immediately');
-      context.read<PostBloc>().add(PostDeletePressed(postId: postId, function: () {
-        log('Delete the coressponding image');
-                          context
-                              .read<PhotoBloc>()
-                              .add(PhotoDeletePressed(post.id));
-      }));
+      //showing the loading state and prevent the user interaction
+      QuickAlert.show(
+        context: context,
+        type: QuickAlertType.loading,
+        showCancelBtn: false,
+        showConfirmBtn: false,
+        barrierDismissible: false,
+      );
+      context.read<PostBloc>().add(
+            PostDeletePressed(
+              postId: postId,
+              function: () {
+                log('Delete the coressponding image');
+                context.read<PhotoBloc>().add(
+                      PhotoDeletePressed(post.id),
+                    );
+                //
+                Navigator.of(context, rootNavigator: true).pop();
+              },
+            ),
+          );
+
       log('Delete photo');
     } else {
       log('Wait, user canceled the action :))');
@@ -48,17 +64,8 @@ class PostItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<PostBloc, PostState>(
-      listenWhen: (previous, current) {
-        final previousPostCount = previous.posts.length;
-        final currentPostCount = current.posts.length;
-        log('Previous count: $previousPostCount, Current count: $currentPostCount');
-        //Listen for the change when the number of current is smalller than the previous
-        //e.g the user has deleted a post
-        return previousPostCount > currentPostCount;
-      },
       listener: (context, state) {
         log('Triggered the delete post action: ${post.id}');
-        // context.read<PhotoBloc>().add(PhotoDeletePressed(post.id));
       },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

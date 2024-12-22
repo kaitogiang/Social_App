@@ -24,7 +24,10 @@ final class PostDeletePressed extends PostEvent {
   final int postId;
   final Function function;
 
-  const PostDeletePressed({required this.postId, required this.function});
+  const PostDeletePressed({
+    required this.postId,
+    required this.function,
+  });
 
   @override
   List<Object> get props => [postId, function];
